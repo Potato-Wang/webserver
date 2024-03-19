@@ -19,11 +19,11 @@ SortTimerList::~SortTimerList()
 
 void SortTimerList::add_timer(UtilTimer *timer)
 {
-    if (timer==nullptr)
+    if (timer == nullptr)
     {
         return;
     }
-    if (_head==nullptr)
+    if (_head == nullptr)
     {
         _head = _tail = timer;
         return;
@@ -39,12 +39,12 @@ void SortTimerList::add_timer(UtilTimer *timer)
 }
 void SortTimerList::adjust_timer(UtilTimer *timer)
 {
-    if (timer==nullptr)
+    if (timer == nullptr)
     {
         return;
     }
     UtilTimer *tmp = timer->next;
-    if (tmp==nullptr || (timer->expire < tmp->expire))
+    if (tmp == nullptr || (timer->expire < tmp->expire))
     {
         return;
     }
@@ -64,7 +64,7 @@ void SortTimerList::adjust_timer(UtilTimer *timer)
 }
 void SortTimerList::del_timer(UtilTimer *timer)
 {
-    if (timer==nullptr)
+    if (timer == nullptr)
     {
         return;
     }
@@ -93,20 +93,20 @@ void SortTimerList::del_timer(UtilTimer *timer)
     timer->next->prev = timer->prev;
     delete timer;
 }
-void SortTimerList::tick()
+int SortTimerList::tick()
 {
-    if (_head==nullptr)
+    if (_head == nullptr)
     {
-        return;
+        return -1;
     }
-    
+
     time_t cur = time(NULL);
     UtilTimer *tmp = _head;
     while (tmp)
     {
         if (cur < tmp->expire)
         {
-            break;
+            return tmp->expire - cur + 1;
         }
         tmp->cb_func(tmp->user_data);
         _head = tmp->next;
@@ -117,6 +117,7 @@ void SortTimerList::tick()
         delete tmp;
         tmp = _head;
     }
+    return -1;
 }
 
 void SortTimerList::add_timer(UtilTimer *timer, UtilTimer *lst_head)
@@ -136,7 +137,7 @@ void SortTimerList::add_timer(UtilTimer *timer, UtilTimer *lst_head)
         prev = tmp;
         tmp = tmp->next;
     }
-    if (tmp==nullptr)
+    if (tmp == nullptr)
     {
         prev->next = timer;
         timer->prev = prev;
@@ -201,7 +202,11 @@ void Utils::addsig(int sig, void(handler)(int), bool restart)
 //定时处理任务，重新定时以不断触发SIGALRM信号
 void Utils::timer_handler()
 {
-    _timer_lst.tick();
+    int ret = _timer_lst.tick();
+    if (ret != -1)
+    {
+        _TIMESLOT = ret;
+    }
     alarm(_TIMESLOT);
 }
 

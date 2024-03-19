@@ -56,7 +56,7 @@ public:
     void add_timer(UtilTimer *timer);
     void adjust_timer(UtilTimer *timer);
     void del_timer(UtilTimer *timer);
-    void tick();
+    int tick();
 
 private:
     void add_timer(UtilTimer *timer, UtilTimer *lst_head);
