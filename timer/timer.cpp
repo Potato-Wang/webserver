@@ -222,8 +222,10 @@ int Utils::_epollfd = 0;
 class Utils;
 void cb_func(ClientData *user_data)
 {
+    //从epoll中删除注册的socketfd
     epoll_ctl(Utils::_epollfd, EPOLL_CTL_DEL, user_data->sockfd, 0);
     assert(user_data);
+    //关闭socketfd
     close(user_data->sockfd);
     --HttpConn::user_count;
 }
